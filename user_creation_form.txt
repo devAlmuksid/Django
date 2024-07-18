@@ -1,0 +1,66 @@
+#project/urls.py
+path('user/', include('users.urls')),
+
+#urls.py
+from django.urls import path
+from .import views
+
+app_name = 'user'
+urlpatterns = [
+    path('', views.register, name='register'),
+]
+
+views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+
+# Create your views here.
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Welcome to {username}, Your account successfully created ')
+            form.save()
+            return redirect('food:index')
+        else:
+            messages.warning(request, f'Account can\'t created')
+    else:
+        form = UserCreationForm()
+    return render(request, 'user/register.html', {'form':form})
+
+
+#Registation.html
+{% extends 'main.html' %}
+{% load static %}
+{% block title %} Register {% endblock title %}
+{% block content %}
+<form action="" method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit">Create</button>
+</form>
+{% endblock content %}
+
+#main.html 
+# This messages are send any file thats why its made for (main.html) the main page
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} style="list-style-type: none;" class="{{ message.tags }}"{% endif %}>
+          <div class="alert alert-{{message.tags}}">
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+            {{ message }}
+          </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+
+
+
+
+
+
