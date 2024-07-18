@@ -63,6 +63,43 @@ ________________________________________________________________________________
 
 
 # Method 2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#forms.py----------------------
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
+class UserForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
+
+# views.py----------------------
+from django.shortcuts import render, redirect
+# from django.contrib.auth.forms import UserCreationForm # When UserForm Used This time UserCreationForm are removed
+from django.contrib import messages
+from .forms import UserForm
+
+# Create your views here.
+def register(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Welcome to {username}, Your account successfully created ')
+            form.save()
+            return redirect('food:index')
+        else:
+            messages.warning(request, f'Account can\'t created')
+    else:
+        form = UserForm()
+    return render(request, 'user/register.html', {'form':form})
+
+
+
 
 
 
